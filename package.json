@@ -1,5 +1,6 @@
 {
   "dependencies": {
-    "bible-scraper": "^2.2.0"
+    "bible-scraper": "^2.2.0",
+    "js-yaml": "^4.1.0"
   }
 }

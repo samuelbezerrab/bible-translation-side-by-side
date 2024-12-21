@@ -1,10 +1,10 @@
 const BibleScraper = require('bible-scraper')
 const fs = require('node:fs')
 
-const BIBLE_ID = 1608
-// const BIBLE_ID = BibleScraper.TRANSLATIONS.VULG;
+// const BIBLE_ID = 1608
+const BIBLE_ID = BibleScraper.TRANSLATIONS.VULG;
 const BIBLE_BOOK = 'GEN'
-const QUANTITY_OF_CHAPTERS = 50
+const QUANTITY_OF_CHAPTERS = 1
 
 ;( async () => {
 
