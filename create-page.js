@@ -25,9 +25,10 @@ function generateBibleHtmlSideBySide(yamlFilePath1, yamlFilePath2, outputHtmlFil
     <title>Gênesis</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            line-height: 1.6;
+            font-family: 'Georgia', serif;
+            line-height: 1.8;
             margin: 20px;
+            color: #333;
         }
         .chapter {
             margin-bottom: 40px;
@@ -57,6 +58,7 @@ function generateBibleHtmlSideBySide(yamlFilePath1, yamlFilePath2, outputHtmlFil
             }
         }
     </style>
+    <link href="https://fonts.googleapis.com/css2?family=Georgia:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <h1>Gênesis: ARA - Vulgata</h1>
