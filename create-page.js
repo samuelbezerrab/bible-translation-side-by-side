@@ -26,13 +26,13 @@ function generateBibleHtmlSideBySide(yamlFilePath1, yamlFilePath2, outputHtmlFil
     <style>
         body {
             font-family: 'Georgia', serif;
-            line-height: 1.8;
+            font-size: 12px;
+            line-height: 1.6;
             margin: 20px 20px 20px 40px;
             color: #333;
         }
         .chapter {
             margin-bottom: 40px;
-            page-break-after: always;
         }
         .columns {
             display: flex;
@@ -48,7 +48,7 @@ function generateBibleHtmlSideBySide(yamlFilePath1, yamlFilePath2, outputHtmlFil
         }
         @media print {
             @page {
-                margin: 1.54cm 1.54cm 1.54cm 2.54cm;
+                margin: 1.0cm 1.0cm 1.0cm 2.54cm;
             }
             body {
                 margin: 1cm;
