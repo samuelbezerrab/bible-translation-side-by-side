@@ -3,8 +3,47 @@
 const fs = require('fs');
 const yaml = require('js-yaml');
 
-// Function to read two YAML files and generate a single HTML file for all chapters side by side
-function generateBibleHtmlSideBySide(yamlFilePath1, yamlFilePath2, outputHtmlFilePath) {
+const charLimit = 2100;
+
+function countVersesWithinCharLimit(verses, charLimit) {
+    let charCount = 0;
+    let verseCount = 0;
+
+    for (let verse of verses) {
+        const verseLength = verse.content.length;
+        if (charCount + verseLength > charLimit) {
+            break;
+        }
+        charCount += verseLength;
+        verseCount++;
+    }
+
+    return verseCount;
+}
+
+function generatePageHTML(verses, firstVerseIndex, title, chapterIndex) {
+    let pageHTML = '';
+    pageHTML += `<div class="page">`;
+    pageHTML += `<h2>`
+    if (firstVerseIndex === 0) {
+        pageHTML += `${title} ${chapterIndex + 1}`
+    }
+    pageHTML += `</h2>`
+    pageHTML += `<p class="verse">`;
+
+    for (let index = 0; index < verses.length; index++) {
+        const verse = verses[index];
+        pageHTML += `<sup>${firstVerseIndex + index + 1}</sup> ${verse.content} `;
+    }
+
+    pageHTML += `</p>`;
+    pageHTML += `</div>`;
+    return pageHTML;
+}
+
+
+// Function to read two YAML files and generate a single HTML file for all chapters
+function generateBibleHtml(yamlFilePath1, yamlFilePath2, outputHtmlFilePath) {
     try {
         // Read and parse the YAML files
         const fileContents1 = fs.readFileSync(yamlFilePath1, 'utf8');
@@ -26,44 +65,26 @@ function generateBibleHtmlSideBySide(yamlFilePath1, yamlFilePath2, outputHtmlFil
     <style>
         body {
             font-family: 'Georgia', serif;
-            font-size: 12px;
+            font-size: 18px;
             line-height: 1.6;
             margin: 20px 20px 20px 40px;
             color: #333;
         }
-        .chapter {
-            margin-bottom: 40px;
-        }
-        .columns {
-            display: flex;
-            flex-direction: row;
-            gap: 20px;
-        }
-        .column {
-            flex: 1;
+        .page {
+            page-break-after: always;
         }
         .verse sup {
             font-size: 0.8em;
             vertical-align: super;
         }
-        @media print {
-            @page {
-                margin: 1.0cm 1.0cm 1.0cm 2.54cm;
-            }
-            body {
-                margin: 1cm;
-            }
-            a:link:after, a:visited:after {
-                content: "";
-            }
-        }
+        /* TODO: add bellow sapce for hand notes. Make it a variable */
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Georgia:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <h1>Gênesis: ARA - Vulgata</h1>
 `;
 
+        let contentBuffer = ''
         // Iterate through each chapter
         const totalChapters = Math.min(bibleData1.length, bibleData2.length);
         for (let chapterIndex = 0; chapterIndex < totalChapters; chapterIndex++) {
@@ -75,34 +96,31 @@ function generateBibleHtmlSideBySide(yamlFilePath1, yamlFilePath2, outputHtmlFil
                 continue;
             }
 
-            htmlContent += `<div class="chapter">
-<h2>Capítulo ${chapterIndex + 1}</h2>
-<div class="columns">
-    <div class="column">
-                <p class="verse">
-`;
-            chapter1.verses.forEach((verse, index) => {
-                htmlContent += `<sup>${index + 1}</sup> ${verse.content} `;
-            });
+            let firstIndex = 0
+            let lastIndex = Math.min(countVersesWithinCharLimit(chapter1.verses, charLimit), countVersesWithinCharLimit(chapter2.verses, charLimit)) // Get minimun to fit both pages
 
-            htmlContent += `</p>
-    </div>
-    <div class="column">
-                <p class="verse">
-`;
-            chapter2.verses.forEach((verse, index) => {
-                htmlContent += `<sup>${index + 1}</sup> ${verse.content} `;
-            });
+            while (lastIndex <= chapter1.verses.length) {
+                console.log('Chapter: ', chapterIndex, 'verses: ', firstIndex, lastIndex)
+                let versesForLeftPage = chapter1.verses.slice(firstIndex, lastIndex)
+                let versesForRightPage = chapter2.verses.slice(firstIndex, lastIndex)
 
-            htmlContent += `</p>
-    </div>
-</div>
-</div>
-`;
+                let leftPageHTML = generatePageHTML(versesForLeftPage, firstIndex, "Capítulo", chapterIndex)
+                let rightPageHTML = generatePageHTML(versesForRightPage, firstIndex,  "Caput", chapterIndex)
+
+                // Add the pages
+                htmlContent += leftPageHTML
+                htmlContent += rightPageHTML
+
+                if (lastIndex == chapter1.verses.length) {
+                    break
+                }
+                // Move to next pages
+                firstIndex = lastIndex
+                lastIndex = ( (firstIndex + lastIndex) > chapter1.verses.length) ? chapter1.verses.length : (firstIndex + lastIndex)
+            }
         }
 
-        htmlContent += `</body>
-</html>`;
+        htmlContent += `</body></html>`;
 
         // Write the HTML content to the output file
         fs.writeFileSync(outputHtmlFilePath, htmlContent, 'utf8');
@@ -115,5 +133,5 @@ function generateBibleHtmlSideBySide(yamlFilePath1, yamlFilePath2, outputHtmlFil
 // Example usage
 const yamlFilePath1 = './books/GEN-ARA'; // Path to the second input YAML file
 const yamlFilePath2 = './books/GEN-VLG'; // Path to the first input YAML file
-const outputHtmlFilePath = 'bible_side_by_side.html'; // Path to the output single HTML file
-generateBibleHtmlSideBySide(yamlFilePath1, yamlFilePath2, outputHtmlFilePath);
+const outputHtmlFilePath = 'bible.html'; // Path to the output single HTML file
+generateBibleHtml(yamlFilePath1, yamlFilePath2, outputHtmlFilePath);
