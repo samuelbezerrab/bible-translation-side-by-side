@@ -3,8 +3,6 @@
 const fs = require('fs');
 const yaml = require('js-yaml');
 
-const charLimit = 2100;
-
 function countVersesWithinCharLimit(verses, charLimit) {
     let charCount = 0;
     let verseCount = 0;
@@ -41,9 +39,8 @@ function generatePageHTML(verses, firstVerseIndex, title, chapterIndex) {
     return pageHTML;
 }
 
-
 // Function to read two YAML files and generate a single HTML file for all chapters
-function generateBibleHtml(yamlFilePath1, yamlFilePath2, outputHtmlFilePath) {
+function generateBibleHtml(yamlFilePath1, yamlFilePath2, charLimit, outputHtmlFilePath) {
     try {
         // Read and parse the YAML files
         const fileContents1 = fs.readFileSync(yamlFilePath1, 'utf8');
@@ -65,7 +62,7 @@ function generateBibleHtml(yamlFilePath1, yamlFilePath2, outputHtmlFilePath) {
     <style>
         body {
             font-family: 'Georgia', serif;
-            font-size: 18px;
+            font-size: 14px;
             line-height: 1.6;
             margin: 20px 20px 20px 40px;
             color: #333;
@@ -84,7 +81,6 @@ function generateBibleHtml(yamlFilePath1, yamlFilePath2, outputHtmlFilePath) {
 <body>
 `;
 
-        let contentBuffer = ''
         // Iterate through each chapter
         const totalChapters = Math.min(bibleData1.length, bibleData2.length);
         for (let chapterIndex = 0; chapterIndex < totalChapters; chapterIndex++) {
@@ -131,7 +127,8 @@ function generateBibleHtml(yamlFilePath1, yamlFilePath2, outputHtmlFilePath) {
 }
 
 // Example usage
+const charLimit = 3900;
 const yamlFilePath1 = './books/GEN-ARA'; // Path to the second input YAML file
 const yamlFilePath2 = './books/GEN-VLG'; // Path to the first input YAML file
 const outputHtmlFilePath = 'bible.html'; // Path to the output single HTML file
-generateBibleHtml(yamlFilePath1, yamlFilePath2, outputHtmlFilePath);
+generateBibleHtml(yamlFilePath1, yamlFilePath2, charLimit, outputHtmlFilePath);
